@@ -69,7 +69,7 @@ O **LibrisNova** é uma aplicação desenvolvida para organizar e controlar o em
 
 ### 1. Clone o repositório
 ```bash
- git clone https://git.tse.jus.br/administrativa/csadm/estagio/francisco-pinheiro.git
+ git clone https://github.com/francisco-mpinheiro/libris-nova.git
 ```
 ### 2. Acesse a pasta do projeto
 ```
@@ -168,7 +168,7 @@ A organização segue o padrão de arquitetura em camadas do Spring:
 ---
 
 ## 🆘 Suporte
-Para dúvidas ou sugestões, entre em contato através do e-mail  ou abra uma *Issue* no repositório oficial do Gitlab.
+Para dúvidas ou sugestões, entre em contato através do e-mail  ou abra uma *Issue* no repositório oficial do Github.
 
 
 
