@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>LibrisNova - Acervo Digital</title>
+
+    <link rel="stylesheet" th:href="@{/css/index.css}">
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="logo-area" th:onclick="|window.location.href='@{/}'| " style="cursor:pointer">
+            <span class="material-symbols-outlined logo-icon"
+                >menu_book</span>
+            <span class="logo-text">LibrisNova</span>
+        </div>
+
+        <button id="menu-button" class="mobile-menu-icon" onclick="toggleMenu()" aria-label="Abrir menu">
+            <div class="hamburger-helper">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </button>
+
+        <div class="nav-links" id="nav-menu">
+            
+            <a th:href="@{/admin/emprestimos-page}" id="link-gestao" sec:authorize="hasAnyRole('ADMIN','APOIO')">Emprestimos</a>
+
+            <a th:href="@{/admin/usuarios-page}" id="link-admin-usuarios" sec:authorize="hasRole('ADMIN')">Usuários</a>
+
+            <a href="javascript:void(0)" onclick="abrirModalMeusEmprestimos()" id="lnkMeusEmprestimos" sec:authorize="!hasAnyRole('ADMIN', 'APOIO')">Meus Empréstimos</a>
+
+            <form th:action="@{/logout}" method="post" class="logout-form">
+                <button type="submit" class="logout-btn">Sair</button>
+            </form>
+
+            <a th:href="@{/profile/usuarios}" class="user-avatar" th:with="nome=${#authentication.name}"
+                th:text="${#strings.substring(nome, 0, 1).toUpperCase()}">U</a>
+        </div>
+    </nav>
+
+    <header class="hero-section">
+        <div class="hero-content">
+            <div class="hero-text">
+                <h1>Acervo Digital</h1>
+                <p>Olá, <span sec:authentication="name">Usuário</span>! Explore nossa coleção exclusiva.</p>
+            </div>
+            <div class="hero-controls">
+                <div class="search-box">
+                    <span class="material-symbols-outlined search-icon">search</span>
+                    <input id="inputBusca" onkeyup="filtrarLivros()" type="text"
+                        placeholder="Buscar por título, autor ou ISBN..." />
+                </div>
+
+                <button id="btn-novo-livro" onclick="abrirModal()" class="btn-primary" sec:authorize="hasRole('ADMIN')">
+                    <span class="material-symbols-outlined">add</span>
+                    Novo Livro
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div id="books-container" class="grid-container">
+            <p class="loading-text">Carregando acervo...</p>
+        </div>
+    </main>
+
+    <div id="modal-livro" class="modal-overlay hidden">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3>Novo Livro</h3>
+                <button class="close-btn" onclick="fecharModal()">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="form-livro">
+                    <input type="hidden" id="livro-id">
+
+                    <div class="form-group">
+                        <label for="titulo">Título</label>
+                        <input type="text" id="titulo" required placeholder="Ex: O Senhor dos Anéis">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="autor">Autor</label>
+                        <input type="text" id="autor" required placeholder="Ex: J.R.R. Tolkien">
+                    </div>
+
+                    <div class="row-group" style="display: flex; gap: 10px;">
+                        <div class="form-group" style="flex: 2;">
+                            <label for="isbn">ISBN</label>
+                            <input type="text" id="isbn" required placeholder="978-0000000000">
+                        </div>
+                        <div class="form-group" style="flex: 1;">
+                            <label for="ano">Ano</label>
+                            <input type="number" id="ano" required placeholder="2024">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="capa">URL da Capa (Imagem)</label>
+                        <input type="text" id="capa" placeholder="https://link-da-imagem.jpg">
+                    </div>
+                    <div class="form-group" id="group-status" style="display: none;">
+                        <label for="status">Status do Livro (Apenas Admin)</label>
+                        <select id="status" class="form-control" style="width: 100%; padding: 10px; border-radius: 4px; border: 1px solid #ddd;">
+                            <option value="DISPONIVEL">DISPONIVEL</option>
+                            <option value="SOLICITADO">SOLICITADO</option>
+                            <option value="EMPRESTADO">EMPRESTADO</option>
+                            <option value="INDISPONIVEL">INDISPONIVEL</option>
+                            <option value="EM_DEVOLUCAO">DEVOLUCAO</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-text" onclick="fecharModal()">Cancelar</button>
+                <button type="submit" form="form-livro" class="btn-primary">Salvar Livro</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-meus-emprestimos" class="modal-overlay hidden">
+        <div class="modal-card modal-large" style="max-width: 800px;">
+            <div class="modal-header">
+                <h3>Meus Empréstimos</h3>
+                <button class="close-btn" onclick="fecharModalMeusEmprestimos()">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Livro</th>
+                            <th>Data Empréstimo</th>
+                            <th>Status</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="meus-emprestimos-body">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-detalhes" class="modal-overlay hidden">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3>Detalhes do Livro</h3>
+                <button class="close-btn" onclick="fecharModalDetalhes()">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <img id="detalhe-capa" src="" alt="Capa do Livro" style="max-height: 200px; border-radius: 8px; box-shadow: var(--card-shadow);">
+                </div>
+                <div style="line-height: 1.6;">
+                    <p><strong>Título:</strong> <span id="detalhe-titulo"></span></p>
+                    <p><strong>Autor:</strong> <span id="detalhe-autor"></span></p>
+                    <p><strong>ISBN:</strong> <span id="detalhe-isbn"></span></p>
+                    <p><strong>Ano de Publicação:</strong> <span id="detalhe-ano"></span></p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-primary" onclick="fecharModalDetalhes()">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <script th:src="@{/js/index.js}"></script>
+
+    <script>
+        function abrirModalMeusEmprestimos() {
+            document.getElementById("modal-meus-emprestimos").classList.remove("hidden");
+            if (typeof carregarMeusEmprestimos === "function") {
+                carregarMeusEmprestimos();
+            }
+        }
+        function fecharModalMeusEmprestimos() {
+            document.getElementById("modal-meus-emprestimos").classList.add("hidden");
+        }
+
+        function toggleMenu() {
+            const nav = document.getElementById('nav-menu');
+            const btn = document.getElementById('menu-button');
+
+            if (nav && btn) {
+                nav.classList.toggle('active');
+                btn.classList.toggle('active');
+            }
+        }
+
+
+        document.querySelectorAll('.nav-links a').forEach(link => {
+            link.addEventListener('click', () => {
+                document.getElementById('nav-menu').classList.remove('active');
+                document.getElementById('menu-icon-symbol').textContent = 'menu';
+            });
+        });
+    </script>
+</body>
+
+</html>

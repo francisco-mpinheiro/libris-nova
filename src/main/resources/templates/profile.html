@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Perfil - LibrisNova</title>
+
+    <link rel="stylesheet" th:href="@{/css/profile.css}">
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700&display=swap"
+        rel="stylesheet" />
+</head>
+
+<body>
+
+    <nav class="navbar">
+        <div class="logo-area" th:onclick="|window.location.href='@{/}'| " style="cursor:pointer">
+            <span class="material-symbols-outlined logo-icon" >menu_book</span>
+            <span class="logo-text">LibrisNova</span>
+        </div>
+
+        <div class="nav-links">
+            <form th:action="@{/logout}" method="post" class="logout-form">
+                <button type="submit" class="btn-link-logout">Sair</button>
+            </form>
+            <a th:href="@{/profile/usuarios}" class="user-avatar" th:with="nome=${#authentication.name}"
+                th:text="${#strings.substring(nome, 0, 1).toUpperCase()}">U</a>
+        </div>
+    </nav>
+
+    <main class="profile-container">
+        <div class="profile-card">
+            <header class="card-header">
+                <div class="icon-box">
+                    <span class="material-icons">manage_accounts</span>
+                </div>
+                <div>
+                    <h1>Meus Dados</h1>
+                    <p>Atualize seu nome, e-mail ou senha de acesso.</p>
+                </div>
+            </header>
+
+
+
+            <div th:if="${param.sucesso}" class="toast-success" id="successPopup">
+                <span class="material-icons">check_circle</span>
+                <p>Dados alterados com sucesso!</p>
+                <button onclick="this.parentElement.style.display='none'">&times;</button>
+            </div>
+
+            <form th:action="@{/profile/atualizar}" th:object="${usuario}" method="post" class="form-content">
+
+                <div class="input-group">
+                    <label for="nome">Nome Completo</label>
+                    <div class="input-field">
+                        <span class="material-icons">badge</span>
+                        <input type="text" id="nome" th:field="*{nome}" placeholder="Seu nome completo" required>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label for="email">E-mail</label>
+                    <div class="input-field">
+                        <span class="material-icons">alternate_email</span>
+                        <input type="email" id="email" th:field="*{email}" placeholder="exemplo@librisnova.com"
+                            required>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label for="senha">Nova Senha</label>
+                    <div class="input-field">
+                        <span class="material-icons">lock_open</span>
+                        <input type="password" id="senha" th:field="*{senha}"
+                            placeholder="Deixe vazio para não alterar">
+                    </div>
+
+                </div>
+
+                <div class="form-footer">
+                    <button type="submit" class="btn-save">Salvar Alterações</button>
+                    <a th:href="@{/}" class="btn-back">Voltar</a>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <script th:if="${param.sucesso}">
+        setTimeout(() => {
+            const popup = document.getElementById('successPopup');
+            if (popup) {
+                popup.style.transition = "opacity 0.5s";
+                popup.style.opacity = "0";
+                setTimeout(() => popup.remove(), 500);
+            }
+        }, 3000); 
+    </script>
+
+</body>
+
+</html>

@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>LibrisNova Admin - Gerenciamento de Usuários</title>
+
+    <link rel="stylesheet" th:href="@{/css/adm.css}">
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
+</head>
+
+<body>
+    <header class="navbar">
+        <nav class="navbar">
+            <div class="logo-area" th:onclick="|window.location.href='@{/}'|" style="cursor:pointer">
+                <span class="material-symbols-outlined logo-icon">menu_book</span>
+                <span class="logo-text">LibrisNova</span>
+            </div>
+
+            <div class="nav-links">
+                <a class="active" href="#">Usuários</a>
+
+                <form th:action="@{/logout}" method="post" class="logout-form">
+                    <button type="submit" class="btn-link-logout">Sair</button>
+                </form>
+
+                <a  th:href="@{/profile/usuarios}" class="user-avatar" th:with="nome=${#authentication.name}"
+                    th:text="${#strings.substring(nome, 0, 1).toUpperCase()}">A</a>
+
+                  
+            </div>
+        </nav>
+    </header>
+
+    <main class="main-container">
+        <div class="card">
+            <div class="page-header">
+                <div>
+                    <h1>Gerenciamento de Usuários</h1>
+                    <p style="color: var(--text-muted); font-size: 0.9rem;">Controle de acessos e perfis do sistema.</p>
+                </div>
+                <button class="btn-primary" onclick="abrirModalNovo()">
+                    <span class="material-symbols-outlined">person_add</span>
+                    Novo Usuário
+                </button>
+            </div>
+
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width: 80px;">ID</th>
+                            <th>Nome</th>
+                            <th>Email</th>
+                            <th>Perfil</th>
+                            <th style="text-align: center;">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabela-usuarios-body">
+                        <tr>
+                            <td colspan="5" style="text-align: center; padding: 40px; color: var(--text-muted);">
+                                Carregando usuários...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <div class="modal hidden" id="user-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modal-title">Novo Usuário</h2>
+                <button class="close-modal" onclick="fecharModal()">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="form-usuario">
+                    <input type="hidden" id="user-id">
+
+                    <div class="form-group">
+                        <label for="user-nome">Nome Completo</label>
+                        <input class="form-control" id="user-nome" placeholder="Ex: Maria Pereira" type="text"
+                            required />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="user-email">Endereço de Email (Login)</label>
+                        <input class="form-control" id="user-email" placeholder="email@exemplo.com" type="email"
+                            required />
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="user-senha">Senha</label>
+                            <input class="form-control" id="user-senha" placeholder="••••••••" type="password" />
+                            <small id="senha-help" style="display:none; color: var(--text-muted);">Deixe em branco para
+                                manter a atual.</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="user-perfil">Perfil</label>
+                            <select class="form-control" id="user-perfil" required>
+                                <option value="USUARIO">USUARIO</option>
+                                <option value="ADMIN">ADMIN</option>
+                                <option value="APOIO">APOIO</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn-secondary" onclick="fecharModal()">Cancelar</button>
+                        <button class="btn-primary" type="submit">Salvar Usuário</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script th:src="@{/js/adm.js}"></script>
+</body>
+
+</html>

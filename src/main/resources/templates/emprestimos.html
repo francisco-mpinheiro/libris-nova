@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>LibrisNova - Gestão de Empréstimos</title>
+
+    
+    <link rel="stylesheet" th:href="@{/css/emprestimos.css}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="logo-area" th:onclick="|window.location.href='@{/}'| " style="cursor:pointer">
+            <span class="material-symbols-outlined logo-icon">menu_book</span>
+            <span class="logo-text">LibrisNova</span>
+        </div>
+
+        <div class="nav-links" id="nav-menu">
+            <a th:href="@{/admin/emprestimos-page}" id="link-gestao"
+                sec:authorize="hasAnyRole('ADMIN', 'APOIO')">Empréstimos</a>
+            <a th:href="@{/admin/usuarios-page}" id="link-admin-usuarios" sec:authorize="hasRole('ADMIN')">Usuários</a>
+            <form th:action="@{/logout}" method="post" class="logout-form">
+                <button type="submit" class="logout-btn">Sair</button>
+            </form>
+            <a th:href="@{/profile/usuarios}" class="user-avatar" th:with="nome=${#authentication.name}"
+                th:text="${#strings.substring(nome, 0, 1).toUpperCase()}">U</a>
+        </div>
+    </nav>
+
+    <main class="main-container">
+        <div class="tabs-nav">
+            <button class="tab-btn active" onclick="switchTab(event, 'tab-solicitacoes')">
+                <span class="material-symbols-outlined">pending_actions</span>
+                Solicitações
+                <span class="badge-count" th:if="${not #lists.isEmpty(solicitacoes)}" th:text="${#lists.size(solicitacoes)}">0</span>
+            </button>
+            <button class="tab-btn" onclick="switchTab(event, 'tab-devolucoes')">
+                <span class="material-symbols-outlined">assignment_returned</span>
+                Devoluções
+                <span class="badge-count count-warning" th:if="${not #lists.isEmpty(devolucoes)}" th:text="${#lists.size(devolucoes)}">0</span>
+            </button>
+            <button class="tab-btn" onclick="switchTab(event, 'tab-historico')">
+                <span class="material-symbols-outlined">history</span>
+                Histórico Geral
+            </button>
+        </div>
+
+        <div id="tab-solicitacoes" class="tab-content active">
+            <div class="card">
+                <div class="page-header">
+                    <h1>Solicitações de Empréstimo</h1>
+                </div>
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Usuário</th>
+                                <th>Livro</th>
+                                <th>Data</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="sol : ${solicitacoes}">
+                                <td>
+                                    <div class="user-info">
+                                        <div class="initial-avatar"
+                                            th:text="${#strings.substring(sol.usuario.nome, 0, 1).toUpperCase()}">U</div>
+                                        <span th:text="${sol.usuario.nome}">Nome</span>
+                                    </div>
+                                </td>
+                                <td th:text="${sol.livro.titulo}">Título</td>
+                                <td th:text="${#temporals.format(sol.dataEmprestimo, 'dd/MM/yyyy')}">Data</td>
+                                <td>
+                                    <div class="actions">
+                                        <button class="btn-action btn-approve" th:onclick="'aprovar(' + ${sol.id} + ')'">
+                                            <span class="material-symbols-outlined">check</span> Aprovar
+                                        </button>
+                                        <button class="btn-action btn-reject" th:onclick="'recusar(' + ${sol.id} + ')'">
+                                            <span class="material-symbols-outlined">close</span> Recusar
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(solicitacoes)}">
+                                <td colspan="4" class="empty-msg">Nenhuma solicitação pendente.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div id="tab-devolucoes" class="tab-content">
+            <div class="card">
+                <div class="page-header">
+                    <h1>Confirmar Devoluções</h1>
+                </div>
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Usuário</th>
+                                <th>Livro</th>
+                                <th>Status</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="dev : ${devolucoes}">
+                                <td th:text="${dev.usuario.nome}">Nome</td>
+                                <td th:text="${dev.livro.titulo}">Livro</td>
+                                <td><span class="status-badge badge-pendente">Aguardando Recebimento</span></td>
+                                <td>
+                                    <button class="btn-action btn-approve"
+                                        th:onclick="'confirmarDevolucao(' + ${dev.id} + ')'">
+                                        <span class="material-symbols-outlined">done_all</span> Confirmar Entrega
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(devolucoes)}">
+                                <td colspan="4" class="empty-msg">Nenhum livro aguardando conferência.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+<div id="tab-historico" class="tab-content">
+    <div class="card">
+        <div class="page-header">
+            <h1>Histórico e Empréstimos Ativos</h1>
+        </div>
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Usuário</th>
+                        <th>Livro</th>
+                        <th>Empréstimo</th>
+                        <th>Devolução</th>
+                        <th>Aprovador</th> 
+                        <th>Recebedor</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="emp : ${todosEmprestimos}">
+                        <td>
+                            <div class="user-info">
+                                <div class="initial-avatar" style="background-color: #495057;"
+                                    th:text="${#strings.substring(emp.usuario.nome, 0, 1).toUpperCase()}">U</div>
+                                <span th:text="${emp.usuario.nome}">Nome</span>
+                            </div>
+                        </td>
+                        <td th:text="${emp.livro.titulo}">Título</td>
+                        <td th:text="${#temporals.format(emp.dataEmprestimo, 'dd/MM/yyyy')}">01/01/2026</td>
+                        <td th:text="${emp.dataDevolucao != null ? #temporals.format(emp.dataDevolucao, 'dd/MM/yyyy') : '-'}">-</td>
+                        
+                        <td>
+                            <span th:text="${emp.aprovador != null ? emp.aprovador.nome : '-'}">-</span>
+                        </td>
+
+                        <td>
+                            <span th:text="${emp.recebedor != null ? emp.recebedor.nome : '-'}">-</span>
+
+                        <td>
+                            <span th:if="${emp.status.name() == 'ATIVO'}" class="status-badge badge-ativo">Ativo</span>
+                            <span th:if="${emp.status.name() == 'FINALIZADO'}" class="status-badge badge-finalizado">Finalizado</span>
+                            <span th:if="${emp.status.name() == 'PENDENTE'}" class="status-badge badge-pendente">Pendente</span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+    </main>
+
+    <script th:inline="javascript">
+        function switchTab(event, tabId) {
+            const contents = document.querySelectorAll('.tab-content');
+            contents.forEach(content => content.classList.remove('active'));
+            const buttons = document.querySelectorAll('.tab-btn');
+            buttons.forEach(btn => btn.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            event.currentTarget.classList.add('active');
+        }
+
+        async function aprovar(id) {
+            if (!confirm("Aprovar este empréstimo?")) return;
+            const res = await fetch(`/emprestimos/${id}/aprovar`, { method: 'POST' });
+            if (res.ok) location.reload();
+            else alert("Erro ao aprovar.");
+        }
+
+        async function recusar(id) {
+            if (!confirm("Recusar solicitação?")) return;
+            const res = await fetch(`/emprestimos/${id}/recusar`, { method: 'POST' });
+            if (res.ok) location.reload();
+            else alert("Erro ao recusar.");
+        }
+
+        async function confirmarDevolucao(id) {
+            if (!confirm("Confirmar que o livro foi entregue fisicamente?")) return;
+            const res = await fetch(`/emprestimos/${id}/confirmar-devolucao`, { method: 'POST' });
+            if (res.ok) location.reload();
+            else alert("Erro ao confirmar.");
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-br">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>LibrisNova - Criar Conta</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" th:href="@{/css/register.css}"> </head>
+
+<body>
+    <div class="main-container">
+        <div class="sidebar mesh-bg">
+            <div class="book-pattern"></div>
+            <div class="glow-effect"></div>
+
+            <div class="brand-header">
+                <div style="text-decoration: none; display: flex; align-items: center; gap: 0.75rem;">
+                    <div class="logo-wrapper">
+                        <div class="logo-blur"></div>
+                        <span class="material-symbols-outlined logo-icon">menu_book</span>
+                    </div>
+                    <span class="brand-name">LibrisNova</span>
+                </div>
+            </div>
+
+            <div class="hero-content">
+                <div class="hero-text-wrapper" style="max-width: 80%;">
+                    <h2 class="hero-title">
+                        Expanda seus <span class="highlight">horizontes</span> com a LibrisNova
+                    </h2>
+                    <p style="margin-top: 1.5rem; font-size: 1.1rem; line-height: 1.6; opacity: 0.9; font-weight: 300;">
+                        A plataforma definitiva para gestão de acervos, conectando leitores e conhecimento em uma interface inteligente e moderna.
+                    </p>
+                    <div class="hero-divider" style="margin: 2rem auto;"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-section">
+            <div class="form-wrapper">
+                <div class="form-header">
+                    <h1 class="welcome-title">Crie sua conta</h1>
+                    <p class="welcome-subtitle">Junte-se à nossa comunidade de leitores</p>
+                </div>
+
+                <div class="login-card">
+                    <div id="toast" th:if="${erroGeral}" class="toast toast-error">
+                        <span class="material-symbols-outlined">error</span>
+                        <span th:text="${erroGeral}">Erro ao cadastrar.</span>
+                    </div>
+
+                    <form th:action="@{/auth/register}" th:object="${usuario}" method="post">
+                        
+                        <div class="form-group">
+                            <label class="input-label" for="nome">Nome Completo</label>
+                            <input class="input-field" id="nome" th:field="*{nome}" placeholder="Ex: João Silva"
+                                required type="text" />
+                            <p th:if="${#fields.hasErrors('nome')}" th:errors="*{nome}" style="color: #ef4444; font-size: 0.75rem; mt: 0.25rem;"></p>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="input-label" for="email">E-mail</label>
+                            <input class="input-field" id="email" th:field="*{email}" placeholder="seu@email.com"
+                                required type="email" />
+                            <p th:if="${#fields.hasErrors('email')}" th:errors="*{email}" style="color: #ef4444; font-size: 0.75rem; mt: 0.25rem;"></p>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="input-label" for="password">Senha</label>
+                            <div class="password-wrapper">
+                                <input class="input-field" id="password" th:field="*{senha}" placeholder="••••••••" required
+                                    type="password" />
+                                <span class="material-symbols-outlined password-toggle"
+                                    onclick="togglePassword()">visibility</span>
+                            </div>
+                            <p th:if="${#fields.hasErrors('senha')}" th:errors="*{senha}" style="color: #ef4444; font-size: 0.75rem; mt: 0.25rem;"></p>
+                        </div>
+
+                        <button class="btn-submit" type="submit" style="margin-top: 1rem;">
+                            Cadastrar
+                            <span class="material-symbols-outlined" style="font-size: 1.2rem">person_add</span>
+                        </button>
+
+                        <div class="card-footer">
+                            <p>Já possui uma conta? <a th:href="@{/login}">Fazer Login</a></p>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function togglePassword() {
+            const senhaInput = document.getElementById('password');
+            const icon = document.querySelector('.password-toggle');
+            if (senhaInput.type === 'password') {
+                senhaInput.type = 'text';
+                icon.innerText = 'visibility_off';
+            } else {
+                senhaInput.type = 'password';
+                icon.innerText = 'visibility';
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const toast = document.querySelector('.toast');
+            if (toast) {
+                setTimeout(() => {
+                    toast.classList.add('toast-hidden');
+                    setTimeout(() => toast.remove(), 500);
+                }, 4000);
+            }
+        });
+    </script>
+</body>
+</html>

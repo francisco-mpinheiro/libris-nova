@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-br">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>LibrisNova Login</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" th:href="@{/css/login.css}">
+</head>
+
+<body>
+    <div class="main-container">
+        <div class="sidebar mesh-bg">
+            <div class="book-pattern"></div>
+            <div class="glow-effect"></div>
+
+            <div class="brand-header">
+                <div style="text-decoration: none; display: flex; align-items: center; gap: 0.75rem;">
+                    <div class="logo-wrapper">
+                        <div class="logo-blur"></div>
+                        <span class="material-symbols-outlined logo-icon">menu_book</span>
+                    </div>
+                    <span class="brand-name">LibrisNova</span>
+                </div>
+            </div>
+
+            <div class="hero-content">
+                <div class="hero-text-wrapper">
+                    <h2 class="hero-title">
+                        Onde cada página vira uma <span class="highlight">nova descoberta</span>
+                    </h2>
+                    <div class="hero-divider"></div>
+                </div>
+            </div>
+
+
+        </div>
+
+        <div class="form-section">
+            <div class="form-wrapper">
+                <div class="form-header">
+                    <h1 class="welcome-title">Bem vindo de volta</h1>
+                    <p class="welcome-subtitle">Por favor insira seus dados para acessar o portal</p>
+                </div>
+
+                <div class="login-card">
+                    <div id="toast" th:if="${param.error}" class="toast toast-error">
+                        <span class="material-symbols-outlined">error</span>
+                        <span>E-mail ou senha inválidos.</span>
+                    </div>
+
+                    <div id="toast" th:if="${param.logout}" class="toast toast-success">
+                        <span class="material-symbols-outlined">check_circle</span>
+                        <span>Você saiu com sucesso!</span>
+                    </div>
+
+                    <form th:action="@{/login}" method="post">
+                        <div class="form-group">
+                            <label class="input-label" for="username">E-mail</label>
+                            <input class="input-field" id="username" name="username" placeholder="seu@email.com"
+                                required type="email" />
+                        </div>
+
+                        <div class="form-group">
+                            <label class="input-label" for="password">Senha</label>
+                            <div class="password-wrapper">
+                                <input class="input-field" id="password" name="password" placeholder="••••••••" required
+                                    type="password" />
+                                <span class="material-symbols-outlined password-toggle"
+                                    onclick="togglePassword()">visibility</span>
+                            </div>
+                        </div>
+
+
+
+                        <button class="btn-submit" type="submit">
+                            Entrar
+                            <span class="material-symbols-outlined" style="font-size: 1.2rem">login</span>
+                        </button>
+
+                        <div class="card-footer">
+                            <p>Ainda não tem uma conta? <a th:href="@{/register}">Criar conta</a></p>
+                        </div>
+                    </form>
+                </div>
+
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function togglePassword() {
+            const senhaInput = document.getElementById('password');
+            const icon = document.querySelector('.password-toggle');
+            if (senhaInput.type === 'password') {
+                senhaInput.type = 'text';
+                icon.innerText = 'visibility_off';
+            } else {
+                senhaInput.type = 'password';
+                icon.innerText = 'visibility';
+            }
+
+
+            document.addEventListener("DOMContentLoaded", () => {
+                const toast = document.querySelector('.toast');
+
+                if (toast) {
+                    
+                    setTimeout(() => {
+                        toast.classList.add('toast-hidden');
+
+                        
+                        setTimeout(() => toast.remove(), 500);
+                    }, 3000);
+                }
+            });
+        }
+    </script>
+</body>
+
+</html>
